@@ -144,7 +144,7 @@ def predict():
         data_y = vec2text(np.argmax(data_y, axis=2)[0])
         prediction_value = vec2text(np.argmax(prediction_value, axis=2)[0])
 
-        if data_y == prediction_value:
+        if data_y.upper() == prediction_value.upper():
             print("y预测=", prediction_value, "y实际=", data_y, "预测成功。")
             success += 1
         else:
