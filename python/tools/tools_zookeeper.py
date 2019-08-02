@@ -94,7 +94,7 @@ class ZK:
         :param path:        节点路径
         :param value:       写入节点的数据
         :param ephemeral:   是否为临时节点
-        :param sequence:    是否递归创建节点
+        :param sequence:    是否为自增节点
         :return:            节点路径
         :exception NodeExistsError: 节点已经存在
         :exception NoChildrenForEphemeralsError:    父节点为临时节点
