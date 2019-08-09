@@ -2,7 +2,7 @@ import random
 
 import tensorflow as tf
 
-SAVE_PATH = "D:/test/tf1/xw_b/"
+SAVE_PATH = "./tf1/xw_b/"
 
 
 def create_data(for_train=False):

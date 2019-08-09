@@ -3,7 +3,7 @@ import random
 import numpy as np
 import tensorflow as tf
 
-SAVE_PATH = "D:/test/tf1/xw_b_nn_keras/"
+SAVE_PATH = "./tf1/xw_b_nn_keras/"
 
 
 def create_data(for_train=False):
