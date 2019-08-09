@@ -58,10 +58,12 @@ class TcpServerFactory(Factory):
 # 启动tcp服务端
 def start_tcp_server():
     port = 9527
-    endpoint = TCP4ServerEndpoint(reactor, port)
-    endpoint.listen(TcpServerFactory())
+    # endpoint = TCP4ServerEndpoint(reactor, port)
+    # endpoint.listen(TcpServerFactory())
+    reactor.listenTCP(port, TcpServerFactory())
     print("#####", "Starting TCP Server on", port, "#####")
     reactor.run()
+    print("#####", "TCP Server is running on", port, "#####")
 
 
 if __name__ == "__main__":
