@@ -3,35 +3,31 @@ import datetime
 import time
 
 from twisted.internet import reactor
-from twisted.internet.endpoints import TCP4ServerEndpoint
-from twisted.internet.protocol import Factory
+from twisted.internet.protocol import ServerFactory, Factory
 from twisted.internet.protocol import Protocol
 
 
 class TcpServer(Protocol):
-    CLIENT_MAP = {}
+    CLIENT_MAP = {}  # 用于保存客户端的连接信息
 
-    def __init__(self, factory):
+    def __init__(self):
         self.connected = False
-        self.factory = factory
 
     def connectionMade(self):
         self.connected = True
-        self.factory.numProtocols = self.factory.numProtocols + 1
-        addr = self.transport.client
+        addr = self.transport.client  # 获取客户端的连接信息
         print("connected", self.transport.socket)
         TcpServer.CLIENT_MAP[addr] = self
 
     def connectionLost(self, reason):
         self.connected = False
-        self.factory.numProtocols = self.factory.numProtocols - 1
-        addr = self.transport.client
+        addr = self.transport.client  # 获取客户端的连接信息
         if addr in TcpServer.CLIENT_MAP:
             print(addr, "Lost Connection from Tcp Server", 'Reason:', reason)
             del TcpServer.CLIENT_MAP[addr]
 
     def dataReceived(self, tcp_data):
-        addr = self.transport.client
+        addr = self.transport.client  # 获取客户端的连接信息
         nowTime = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         try:
             msg = tcp_data.decode("utf-8")
@@ -47,20 +43,11 @@ class TcpServer(Protocol):
             self.transport.write(str.encode("utf-8"))
 
 
-class TcpServerFactory(Factory):
-    def __init__(self):
-        self.numProtocols = 0
-
-    def buildProtocol(self, addr):
-        return TcpServer(self)
-
-
 # 启动tcp服务端
 def start_tcp_server():
     port = 9527
-    # endpoint = TCP4ServerEndpoint(reactor, port)
-    # endpoint.listen(TcpServerFactory())
-    reactor.listenTCP(port, TcpServerFactory())
+    serverFactory = Factory.forProtocol(TcpServer)
+    reactor.listenTCP(port, serverFactory)
     print("#####", "Starting TCP Server on", port, "#####")
     reactor.run()
     print("#####", "TCP Server is running on", port, "#####")
