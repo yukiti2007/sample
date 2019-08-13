@@ -1,4 +1,4 @@
-package java.sample.netty.server.discardServer;
+package sample.netty.server.discardServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,4 +1,4 @@
-package java.sample.netty.server.discardServer;
+package sample.netty.server.discardServer;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -18,6 +18,15 @@ public class DiscardServer {
 
     public DiscardServer(int port) {
         this.port = port;
+    }
+
+    public static void main(String[] args) throws Exception {
+        int port = 8080;
+        if (args.length > 0) {
+            port = Integer.parseInt(args[0]);
+        }
+
+        new DiscardServer(port).run();
     }
 
     public void run() throws Exception {
@@ -47,15 +56,6 @@ public class DiscardServer {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        int port = 8080;
-        if (args.length > 0) {
-            port = Integer.parseInt(args[0]);
-        }
-
-        new DiscardServer(port).run();
     }
 
 //  (1)  NioEventLoopGroup is a multithreaded event loop that handles I/O operation. Netty provides various EventLoopGroup implementations for different kind of transports. We are implementing a server-side application in this example, and therefore two NioEventLoopGroup will be used. The first one, often called 'boss', accepts an incoming connection. The second one, often called 'worker', handles the traffic of the accepted connection once the boss accepts the connection and registers the accepted connection to the worker. How many Threads are used and how they are mapped to the created Channels depends on the EventLoopGroup implementation and may be even configurable via a constructor.
