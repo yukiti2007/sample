@@ -30,9 +30,7 @@ public class ProtocolHandler extends ByteToMessageDecoder {
         byte[] content = new byte[length];
         in.readBytes(content);
         in.resetReaderIndex();
-        System.out.println("#############\n"
-//                + in.isWritable() + "\n"
-                + new String(content));
+        System.out.println("#############\n" + new String(content));
         ctx.pipeline().remove(this.getClass());
     }
 }
