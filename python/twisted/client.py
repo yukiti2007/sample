@@ -37,7 +37,7 @@ class TcpClient(Protocol):
             print("Received msg", msg, "from Tcp Server", addr)
 
             time.sleep(5)
-            str = "来自客户端的响应 " + nowTime
+            str = "来自客户端的请求 " + nowTime
             self.transport.write(str.encode("utf-8"))
 
         except BaseException as e:
@@ -72,6 +72,7 @@ class TcpClientFactory(ClientFactory):
 def start_tcp_client():
     host = "127.0.0.1"
     port = 9527
+    port = 8080
     reactor.connectTCP(host, port, TcpClientFactory())
     reactor.run()
 

@@ -1,5 +1,6 @@
 package sample.netty.server.myTestServer;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -11,12 +12,16 @@ public class PrintHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        FullHttpRequest request = (FullHttpRequest) msg;
-        System.out.println("$$$$$$$$$$$$$ \n" + request.toString());
+//        FullHttpRequest request = (FullHttpRequest) msg;
+        ByteBuf byteBuf = (ByteBuf) msg;
+        int length = byteBuf.readableBytes();
+        byte[] content = new byte[length];
+        byteBuf.readBytes(content);
+        System.out.println("$$$$$$$$$$$$$ \n" + new String(content));
 
-        final ChannelFuture f = ctx.writeAndFlush(msg);
-        f.addListener(ChannelFutureListener.CLOSE);
-        ReferenceCountUtil.release(msg);
+        String str = "来自服务器的响应 " + System.currentTimeMillis();
+        ((ByteBuf) msg).writeBytes(str.getBytes());
+        ctx.channel().writeAndFlush(msg);
     }
 
 //    /**
