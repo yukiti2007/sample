@@ -1,4 +1,4 @@
-package sample.netty4.server.myTestServer;
+package sample.netty4.server.myProxyServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -6,8 +6,7 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 
 import java.util.List;
 
-public class ProtocolHandler extends ByteToMessageDecoder {
-
+public class TestDecoder extends ByteToMessageDecoder {
     /**
      * Decode the from one {@link ByteBuf} to an other. This method will be called till either the input
      * {@link ByteBuf} has nothing to read when return from this method or till nothing was read from the input
@@ -20,17 +19,7 @@ public class ProtocolHandler extends ByteToMessageDecoder {
      */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        int length = in.readableBytes();
-        if (length > 999) {
-            length = 999;
-        }
-
-        // 标记读位置
-        in.markReaderIndex();
-        byte[] content = new byte[length];
-        in.readBytes(content);
-        in.resetReaderIndex();
-        System.out.println("#############\n" + new String(content));
-        ctx.pipeline().remove(this.getClass());
+//        ReferenceCountUtil.retain(in);
+        out.add(in.readByte());
     }
 }

@@ -1,4 +1,4 @@
-package sample.netty4.server.myTestServer;
+package sample.netty4.server.myProxyServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;

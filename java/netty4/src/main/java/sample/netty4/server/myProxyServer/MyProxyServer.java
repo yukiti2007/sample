@@ -1,15 +1,21 @@
-package sample.netty4.server.myTestServer;
+package sample.netty4.server.myProxyServer;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 
-public class MyTestServer {
+public class MyProxyServer {
+    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
+    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(10);
     private int port;
 
-    public MyTestServer(int port) {
+    public MyProxyServer(int port) {
         this.port = port;
     }
 
@@ -19,12 +25,10 @@ public class MyTestServer {
             port = Integer.parseInt(args[0]);
         }
 
-        new MyTestServer(port).run();
+        new MyProxyServer(port).run();
     }
 
     public void run() throws Exception {
-        EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-        EventLoopGroup workerGroup = new NioEventLoopGroup(10);
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(bossGroup, workerGroup)
@@ -34,12 +38,8 @@ public class MyTestServer {
                         public void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline()
                                     .addLast(new ProtocolHandler())
-//                                    .addLast(new TestDecoder())
-//                                    .addLast(new HttpRequestDecoder(4096, 64 * 1024, 128 * 1024))
-//                                    .addLast(new HttpObjectAggregator(1024 * 1024 * 5))
-//                                    .addLast(new HttpResponseEncoder())
-                                    .addLast(new PrintHandler())
-                                    .addLast(new ChannelOutboundHandlerAdapter());
+                                    .addLast(new IdleStateHandler(0, 0, 60))
+                                    .addLast(IdleCloseHandler.INSTANCE);
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
