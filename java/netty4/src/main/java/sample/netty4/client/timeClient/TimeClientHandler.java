@@ -1,4 +1,4 @@
-package sample.netty.client.timeClient;
+package sample.netty4.client.timeClient;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;

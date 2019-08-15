@@ -1,9 +1,8 @@
-package sample.netty.server.myTestServer;
+package sample.netty4.server.myTestServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import io.netty.util.ReferenceCountUtil;
 
 import java.util.List;
 

@@ -1,7 +1,6 @@
-package sample.netty.client.timeClient;
+package sample.netty4.client.timeClient;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;

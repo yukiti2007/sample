@@ -1,4 +1,4 @@
-package sample.netty.server.timeServer;
+package sample.netty4.server.timeServer;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
