@@ -27,7 +27,7 @@ public class httpProxyRequest {
                             return null;
                         }
 
-                        String credential = Credentials.basic("proxyUserName", "proxyPassword");
+                        String credential = Credentials.basic("proxyUserName", "proxyPassword11");
                         return response.request().newBuilder()
                                 .header("Proxy-Authorization", credential)
                                 .build();

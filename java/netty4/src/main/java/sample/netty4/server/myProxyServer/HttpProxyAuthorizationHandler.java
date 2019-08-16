@@ -30,18 +30,17 @@ public class HttpProxyAuthorizationHandler extends ChannelInboundHandlerAdapter 
 
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
                 ok = false;
-                ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.PROXY_AUTHENTICATION_REQUIRED)).addListener(ChannelFutureListener.CLOSE);
             } else {
                 //TODO 验证用户名密码
                 if (!"proxyUserName".equals(userName) || !"proxyPassword".equals(password)) {
                     ok = false;
-                    ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.UNAUTHORIZED)).addListener(ChannelFutureListener.CLOSE);
                 }
             }
 
             if (!ok) {
                 System.out.println("HttpProxyAuthorizationHandler ERR ");
                 System.out.println(msg.toString());
+                ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.PROXY_AUTHENTICATION_REQUIRED)).addListener(ChannelFutureListener.CLOSE);
                 ReferenceCountUtil.release(msg);
             } else {
                 ctx.pipeline().remove(this);
