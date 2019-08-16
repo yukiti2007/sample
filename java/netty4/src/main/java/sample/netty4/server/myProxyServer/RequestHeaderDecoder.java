@@ -27,6 +27,7 @@ public class RequestHeaderDecoder extends ByteToMessageDecoder {
      */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        StringBuilder sb = new StringBuilder();
         String line = "";
         try {
             while (!("\r\n".equals(line) || "\n".equals(line))) {
@@ -50,15 +51,15 @@ public class RequestHeaderDecoder extends ByteToMessageDecoder {
                     }
                 }
                 if (!dropFlg) {
-                    out.add(line);
+                    sb.append(line);
                 }
             }
             byte[] data = new byte[in.readableBytes()];
             in.readBytes(data);
-            out.add(data);
+            sb.append(new String(data));
+            out.add(sb);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
         }
     }
 }

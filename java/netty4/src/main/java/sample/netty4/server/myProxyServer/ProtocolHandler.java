@@ -4,8 +4,11 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpServerCodec;
+import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
-import sample.netty4.server.myProxyServer.entity.Constants;
 
 public class ProtocolHandler extends ChannelInboundHandlerAdapter {
 
@@ -26,20 +29,19 @@ public class ProtocolHandler extends ChannelInboundHandlerAdapter {
         String protocol = line.split(" ")[0];
 
 //        if (Constants.HTTP_METHOD.contains(protocol)) {
-            ctx.channel().attr(AttributeKeys.REQUEST_METHOD).set("HTTP");
-            ctx.pipeline()
+        ctx.channel().attr(AttributeKeys.HTTP_METHOD).set("HTTP");
+        ctx.pipeline()
 
-                    // ChannelInboundHandlerAdapter
-                    .addLast(new HttpClientCodec())
-                    .addLast(HttpProxyAuthorizationHandler.INSTANCE)
-                    .addLast(new RequestHeaderDecoder())
-//                    .addLast(new HttpRequestDecoder(4096, 64 * 1024, 128 * 1024))
-//                    .addLast(new HttpObjectAggregator(1024 * 1024 * 5))
-                    .addLast(new PrintHandler())
+                // ChannelInboundHandlerAdapter
+                .addLast(new RequestHeaderDecoder())
+                .addLast(new HttpProxyAuthorizationHandler())
+                .addLast(new HttpServerCodec())
+                .addLast(new HttpObjectAggregator(65535))
+                .addLast(new PrintHandler())
 
-            //ChannelOutboundHandlerAdapter
-//                    .addLast(new HttpResponseEncoder())
-            ;
+        //ChannelOutboundHandlerAdapter
+//                .addLast(new HttpResponseEncoder())
+        ;
 
 //        } else if (Constants.HTTPS_METHOD.contains(protocol)) {
 //            ctx.channel().attr(AttributeKeys.REQUEST_METHOD).set("HTTPS");

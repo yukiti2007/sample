@@ -38,7 +38,7 @@ public class httpProxyRequest {
         httpProxyRequest.client = clientBuilder.build();
 
 //        System.out.println(httpProxyRequest.get("https://baidu.com"));
-        System.out.println(httpProxyRequest.post("https://ocean.17usoft.com/web/workorder.html#/WO190816000092", "{'aaa':'a1a1a1'}"));
+        System.out.println(httpProxyRequest.post("https://www.baidu.com", "{'aaa':'a1a1a1'}"));
     }
 
     private String get(String url) throws IOException {

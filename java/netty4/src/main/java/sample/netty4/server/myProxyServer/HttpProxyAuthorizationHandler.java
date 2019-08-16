@@ -12,14 +12,13 @@ import org.slf4j.LoggerFactory;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
 import sample.netty4.server.myProxyServer.entity.HttpResponse;
 
-@ChannelHandler.Sharable
 public class HttpProxyAuthorizationHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger logger = LoggerFactory.getLogger(HttpProxyAuthorizationHandler.class);
 
-    public static HttpProxyAuthorizationHandler INSTANCE = new HttpProxyAuthorizationHandler();
+//    public static HttpProxyAuthorizationHandler INSTANCE = new HttpProxyAuthorizationHandler();
 
-    private HttpProxyAuthorizationHandler() {
+    public HttpProxyAuthorizationHandler() {
     }
 
     @Override
@@ -31,16 +30,18 @@ public class HttpProxyAuthorizationHandler extends ChannelInboundHandlerAdapter 
 
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {
                 ok = false;
-                ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.UNAUTHORIZED)).addListener(ChannelFutureListener.CLOSE);
+                ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.PROXY_AUTHENTICATION_REQUIRED)).addListener(ChannelFutureListener.CLOSE);
             } else {
                 //TODO 验证用户名密码
                 if (!"proxyUserName".equals(userName) || !"proxyPassword".equals(password)) {
                     ok = false;
+                    ctx.channel().writeAndFlush(new HttpResponse(HttpResponseStatus.UNAUTHORIZED)).addListener(ChannelFutureListener.CLOSE);
                 }
             }
 
             if (!ok) {
-                System.out.println("HttpProxyAuthorizationHander ERR");
+                System.out.println("HttpProxyAuthorizationHandler ERR ");
+                System.out.println(msg.toString());
                 ReferenceCountUtil.release(msg);
             } else {
                 ctx.pipeline().remove(this);

@@ -6,14 +6,15 @@ import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.util.CharsetUtil;
 
 public class HttpResponse extends DefaultFullHttpResponse {
 
-    private static final ByteBuf RESPONSE_BODY = Unpooled.unreleasableBuffer(Unpooled.EMPTY_BUFFER);
+    private static final ByteBuf RESPONSE_BODY = Unpooled.copiedBuffer(Unpooled.EMPTY_BUFFER);
 
     public HttpResponse(HttpResponseStatus responseStatus) {
         super(HttpVersion.HTTP_1_1, responseStatus, RESPONSE_BODY);
-        headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=utf-8");
+        headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=utf-8");
         headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
         headers().set(HttpHeaderNames.CONNECTION, "close");
     }
