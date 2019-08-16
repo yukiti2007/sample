@@ -24,7 +24,7 @@ public class ProxyHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void doProxy(final HttpRequest request, final ChannelHandlerContext ctxClient, final int connectTimoutMs, final int retryCount) {
-
+new HttpObjectAggregator(1);
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)

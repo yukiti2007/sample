@@ -48,6 +48,8 @@ public class MyProxyServer {
             ChannelFuture f = b.bind(port).sync();
 
             f.channel().closeFuture().sync();
+        } catch (Exception e) {
+            e.printStackTrace();
         } finally {
             workerGroup.shutdownGracefully();
             bossGroup.shutdownGracefully();

@@ -13,10 +13,9 @@ public class httpProxyRequest {
 
     public static void main(String[] args) throws IOException {
 
-        httpProxyRequest httpProxyRequest = new httpProxyRequest();
+        Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("127.0.0.1", 8080));
+
         OkHttpClient.Builder clientBuilder = new OkHttpClient.Builder();
-        Proxy proxy = new Proxy(Proxy.Type.HTTP,
-                new InetSocketAddress("127.0.0.1", 8080));
         clientBuilder
                 .proxy(proxy)
                 .proxyAuthenticator(new Authenticator() {
@@ -27,20 +26,24 @@ public class httpProxyRequest {
                             return null;
                         }
 
-                        String credential = Credentials.basic("proxyUserName", "");
+                        String credential = Credentials.basic("proxyUserName", "proxyPassword111");
                         return response.request().newBuilder()
                                 .header("Proxy-Authorization", credential)
                                 .build();
                     }
-                });
+                })
+        ;
+
+        httpProxyRequest httpProxyRequest = new httpProxyRequest();
         httpProxyRequest.client = clientBuilder.build();
 
 //        System.out.println(httpProxyRequest.get("https://baidu.com"));
-        System.out.println(httpProxyRequest.post("https://baidu.com", "{'aaa':'a1a1a1'}"));
+        System.out.println(httpProxyRequest.post("https://ocean.17usoft.com/web/workorder.html#/WO190816000092", "{'aaa':'a1a1a1'}"));
     }
 
     private String get(String url) throws IOException {
         Request request = new Request.Builder()
+//                .addHeader("Proxy-Authorization", "Basic cHJveHlVc2VyTmFtZTphYWFh")
                 .url(url)
                 .build();
         try (Response response = client.newCall(request).execute()) {
@@ -52,6 +55,7 @@ public class httpProxyRequest {
     private String post(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(JSON, json);
         Request httpRequest = new Request.Builder()
+//                .addHeader("Proxy-Authorization", "Basic cHJveHlVc2VyTmFtZTphYWFh")
                 .url(url)
                 .post(body)
                 .build();
