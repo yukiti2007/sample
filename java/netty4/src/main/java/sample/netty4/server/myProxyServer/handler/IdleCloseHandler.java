@@ -1,4 +1,4 @@
-package sample.netty4.server.myProxyServer;
+package sample.netty4.server.myProxyServer.handler;
 
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandler;

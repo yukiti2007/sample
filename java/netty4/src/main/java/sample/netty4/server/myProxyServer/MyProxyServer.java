@@ -8,7 +8,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.timeout.IdleStateHandler;
+import sample.netty4.server.myProxyServer.handler.ProtocolHandler;
 
 public class MyProxyServer {
     private static final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
@@ -36,10 +36,8 @@ public class MyProxyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline()
-                                    .addLast(new ProtocolHandler())
-                                    .addLast(new IdleStateHandler(0, 0, 60))
-                                    .addLast(IdleCloseHandler.INSTANCE);
+                            Tools.initHandler(ch.pipeline())
+                                    .addLast(new ProtocolHandler());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)
