@@ -5,7 +5,6 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.net.HttpHeaders;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,6 @@ public class HttpProxyAuthorizationHandler extends BaseInBoundHandler {
             }
 
             if (!ok) {
-                ReferenceCountUtil.release(msg);
                 ctx.channel().writeAndFlush(HttpResponse.PROXY_AUTHENTICATION_REQUIRED);
             } else {
                 ctx.pipeline().remove(this);
@@ -49,9 +47,7 @@ public class HttpProxyAuthorizationHandler extends BaseInBoundHandler {
             }
 
         } catch (Exception e) {
-            ReferenceCountUtil.release(msg);
             ctx.channel().writeAndFlush(HttpResponse.PROXY_AUTHENTICATION_REQUIRED);
-            logger.error("HttpProxyAuthorizationHandler ERR ", e);
         }
     }
 }
