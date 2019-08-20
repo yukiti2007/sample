@@ -2,10 +2,10 @@ package sample.netty4.server.myProxyServer;
 
 import com.google.common.collect.Lists;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
-import io.netty.handler.timeout.IdleStateHandler;
-import sample.netty4.server.myProxyServer.handler.IdleCloseHandler;
+import io.netty.handler.ssl.SslContext;
 
 import java.util.List;
 import java.util.Map;
@@ -28,19 +28,29 @@ public final class Tools {
     }
 
 
-    public static ChannelPipeline initHandler(ChannelPipeline pipeline) {
+    public static ChannelPipeline initHandler(Channel ch) {
+        return initHandler(ch, null);
+    }
+
+
+    public static ChannelPipeline initHandler(Channel ch, SslContext sslCtx) {
+        ChannelPipeline p = ch.pipeline();
         List<String> namesToRemove = Lists.newArrayList();
-        for (Map.Entry<String, ChannelHandler> handlerEntry : pipeline) {
+        for (Map.Entry<String, ChannelHandler> handlerEntry : p) {
             namesToRemove.add(handlerEntry.getKey());
         }
         for (String toRemove : namesToRemove) {
-            pipeline.remove(toRemove);
+            p.remove(toRemove);
+        }
+
+        if (sslCtx != null) {
+            p.addLast(sslCtx.newHandler(ch.alloc()));
         }
 //        return pipeline
 //                .addLast(new IdleStateHandler(0, 0, 60))
 //                .addLast(IdleCloseHandler.INSTANCE);
 
-        return pipeline;
+        return p;
     }
 
     public static void removeHandler(ChannelPipeline p, Class<? extends ChannelHandler> clazz) {

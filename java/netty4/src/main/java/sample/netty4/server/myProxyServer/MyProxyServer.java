@@ -36,7 +36,7 @@ public class MyProxyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                         @Override
                         public void initChannel(SocketChannel ch) throws Exception {
-                            Tools.initHandler(ch.pipeline())
+                            Tools.initHandler(ch)
                                     .addLast(new ProtocolHandler());
                         }
                     })
