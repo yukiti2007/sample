@@ -4,19 +4,22 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.InitializingBean;
+import sample.netty4.server.myProxyServer.entity.EventLoopGroups;
 import sample.netty4.server.myProxyServer.handler.ProtocolHandler;
 
-public class MyProxyServer {
-    private static final EventLoopGroup bossGroup = new NioEventLoopGroup(1);
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(10);
-    private int port;
+public class MyProxyServer implements InitializingBean {
 
-    public MyProxyServer(int port) {
-        this.port = port;
+    private static final Logger logger = LoggerFactory.getLogger(MyProxyServer.class);
+
+    private int serverPort;
+
+    public MyProxyServer(int serverPort) {
+        this.serverPort = serverPort;
     }
 
     public static void main(String[] args) throws Exception {
@@ -25,13 +28,14 @@ public class MyProxyServer {
             port = Integer.parseInt(args[0]);
         }
 
-        new MyProxyServer(port).run();
+        new MyProxyServer(port).afterPropertiesSet();
     }
 
-    public void run() throws Exception {
+    @Override
+    public void afterPropertiesSet() throws Exception {
         try {
             ServerBootstrap b = new ServerBootstrap();
-            b.group(bossGroup, workerGroup)
+            b.group(EventLoopGroups.bossGroup, EventLoopGroups.workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer<SocketChannel>() { // (4)
                         @Override
@@ -43,14 +47,14 @@ public class MyProxyServer {
                     .option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
-            ChannelFuture f = b.bind(port).sync();
+            ChannelFuture f = b.bind(serverPort).sync();
 
             f.channel().closeFuture().sync();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("MyProxyServer Exception", e);
         } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
+            EventLoopGroups.workerGroup.shutdownGracefully();
+            EventLoopGroups.bossGroup.shutdownGracefully();
         }
     }
 }

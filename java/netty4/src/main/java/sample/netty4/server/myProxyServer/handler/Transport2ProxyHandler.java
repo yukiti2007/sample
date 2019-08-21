@@ -3,27 +3,21 @@ package sample.netty4.server.myProxyServer.handler;
 import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.ReferenceCountUtil;
 import sample.netty4.server.myProxyServer.Tools;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
 import sample.netty4.server.myProxyServer.entity.Constants;
+import sample.netty4.server.myProxyServer.entity.EventLoopGroups;
 import sample.netty4.server.myProxyServer.entity.HttpResponse;
-import sample.netty4.server.myProxyServer.enums.TransportProtocol;
 
 import javax.net.ssl.SSLException;
 
-public class ProxyHandler extends BaseInBoundHandler {
-
-    private static final EventLoopGroup workerGroup = new NioEventLoopGroup(10);
+public class Transport2ProxyHandler extends BaseInBoundHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -35,17 +29,9 @@ public class ProxyHandler extends BaseInBoundHandler {
         if (null == connectTimout) {
             connectTimout = Constants.CONNECT_TIMOUT_MS;
         }
-        SslContext sslCtx = null;
-        String hostAdd = ctxClient.channel().attr(AttributeKeys.HOST_ADD).get();
-        int hostPort = ctxClient.channel().attr(AttributeKeys.HOST_PORT).get();
-        TransportProtocol tp = ctxClient.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).get();
-        if (TransportProtocol.HTTPS == tp) {
-            sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-        }
 
         Bootstrap b = new Bootstrap();
-        SslContext finalSslCtx = sslCtx;
-        b.group(workerGroup)
+        b.group(EventLoopGroups.workerGroup)
                 .channel(NioSocketChannel.class)
                 .option(ChannelOption.SO_REUSEADDR, true)
                 .option(ChannelOption.AUTO_READ, true)
@@ -54,15 +40,18 @@ public class ProxyHandler extends BaseInBoundHandler {
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        Tools.initHandler(ch, finalSslCtx)
+                        Tools.initHandler(ch)
                                 .addLast(new HttpClientCodec())
                                 .addLast(new HttpObjectAggregator(1024 * 1024 * 5));
                         ch.pipeline().addLast(new ConnectResponseHandler(ctxClient));
                     }
                 });
 
-        b.connect(hostAdd, hostPort).addListener(new ChannelFutureListener() {
-//        b.connect("10.101.20.65", 9002).addListener(new ChannelFutureListener() {
+        String proxyAdd = ctxClient.channel().attr(AttributeKeys.PROXY_ADD).get();
+        Integer proxyPort = ctxClient.channel().attr(AttributeKeys.PROXY_PORT).get();
+        proxyAdd = "10.101.20.65";
+        proxyPort = 9008;
+        b.connect(proxyAdd, proxyPort).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
@@ -101,12 +90,7 @@ public class ProxyHandler extends BaseInBoundHandler {
                 }
             });
 
-            SslContext sslCtx = null;
-            TransportProtocol tp = ctxClient.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).get();
-            if (TransportProtocol.HTTPS == tp) {
-                sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-            }
-            Tools.initHandler(ctxServer.channel(), sslCtx)
+            Tools.initHandler(ctxServer.channel())
                     .addLast(new RawDataTransportHandler(this.ctxClient));
         }
     }

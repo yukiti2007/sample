@@ -8,6 +8,7 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sample.netty4.server.myProxyServer.Tools;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
 import sample.netty4.server.myProxyServer.entity.HttpResponse;
 
@@ -42,7 +43,7 @@ public class HttpProxyAuthorizationHandler extends BaseInBoundHandler {
             if (!ok) {
                 ctx.channel().writeAndFlush(HttpResponse.PROXY_AUTHENTICATION_REQUIRED);
             } else {
-                ctx.pipeline().remove(this);
+                Tools.removeHandler(ctx.pipeline(), this.getClass());
                 ctx.fireChannelRead(msg);
             }
 
