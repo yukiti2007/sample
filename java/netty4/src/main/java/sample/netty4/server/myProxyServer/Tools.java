@@ -5,12 +5,23 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.ssl.SslContext;
+import sample.netty4.server.myProxyServer.entity.Constants;
 
 import java.util.List;
 import java.util.Map;
 
 public final class Tools {
+
+    public static HttpHeaders removeHeaders(HttpHeaders headers) {
+        for (String header : Constants.DROP_HEADERS) {
+            headers.remove(header);
+        }
+        headers.add(com.google.common.net.HttpHeaders.CONNECTION, "close");
+
+        return headers;
+    }
 
     public static String readLine(ByteBuf in) {
         StringBuilder sb = new StringBuilder();

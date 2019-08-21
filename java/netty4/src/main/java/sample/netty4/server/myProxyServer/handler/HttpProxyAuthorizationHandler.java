@@ -1,8 +1,6 @@
 package sample.netty4.server.myProxyServer.handler;
 
 import com.google.common.base.Preconditions;
-import com.google.common.io.BaseEncoding;
-import com.google.common.net.HttpHeaders;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.FullHttpRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -22,11 +20,8 @@ public class HttpProxyAuthorizationHandler extends BaseInBoundHandler {
         FullHttpRequest request = (FullHttpRequest) msg;
 
         try {
-            String data = request.headers().get(HttpHeaders.PROXY_AUTHORIZATION);
-            data = new String(BaseEncoding.base64().decode(data.replace("Basic ", "")));
-            String[] info = data.split(":");
-            String userName = info[0];
-            String password = info[1];
+            String userName = ctx.channel().attr(AttributeKeys.USERNAME).get();
+            String password = ctx.channel().attr(AttributeKeys.PASSWORD).get();
             boolean ok = true;
 
             if (StringUtils.isBlank(userName) || StringUtils.isBlank(password)) {

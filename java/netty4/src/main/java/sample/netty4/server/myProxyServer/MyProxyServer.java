@@ -55,6 +55,7 @@ public class MyProxyServer implements InitializingBean {
         } finally {
             EventLoopGroups.workerGroup.shutdownGracefully();
             EventLoopGroups.bossGroup.shutdownGracefully();
+            logger.info("MyProxyServer Close");
         }
     }
 }

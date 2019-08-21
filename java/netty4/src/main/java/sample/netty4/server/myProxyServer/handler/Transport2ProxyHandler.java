@@ -9,6 +9,9 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.util.ReferenceCountUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sample.netty4.server.myProxyServer.MyProxyServer;
 import sample.netty4.server.myProxyServer.Tools;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
 import sample.netty4.server.myProxyServer.entity.Constants;
@@ -18,6 +21,8 @@ import sample.netty4.server.myProxyServer.entity.HttpResponse;
 import javax.net.ssl.SSLException;
 
 public class Transport2ProxyHandler extends BaseInBoundHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(Transport2ProxyHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {

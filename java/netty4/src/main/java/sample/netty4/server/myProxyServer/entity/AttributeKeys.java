@@ -6,6 +6,7 @@ import sample.netty4.server.myProxyServer.enums.TransportProtocol;
 
 public class AttributeKeys {
     public static final AttributeKey<String> USERNAME = AttributeKey.valueOf("username");
+    public static final AttributeKey<String> PASSWORD = AttributeKey.valueOf("password");
     public static final AttributeKey<String> HOST = AttributeKey.valueOf("host");
     public static final AttributeKey<String> HOST_ADD = AttributeKey.valueOf("host_add");
     public static final AttributeKey<Integer> HOST_PORT = AttributeKey.valueOf("host_port");

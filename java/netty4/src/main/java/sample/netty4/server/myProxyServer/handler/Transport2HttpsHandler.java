@@ -12,6 +12,8 @@ import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.ReferenceCountUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sample.netty4.server.myProxyServer.Tools;
 import sample.netty4.server.myProxyServer.entity.AttributeKeys;
 import sample.netty4.server.myProxyServer.entity.Constants;
@@ -21,6 +23,8 @@ import sample.netty4.server.myProxyServer.entity.HttpResponse;
 import javax.net.ssl.SSLException;
 
 public class Transport2HttpsHandler extends BaseInBoundHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(Transport2HttpsHandler.class);
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -52,7 +56,7 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
                 });
 
         String hostAdd = ctxClient.channel().attr(AttributeKeys.HOST_ADD).get();
-        int hostPort = ctxClient.channel().attr(AttributeKeys.HOST_PORT).get();
+        Integer hostPort = ctxClient.channel().attr(AttributeKeys.HOST_PORT).get();
         b.connect(hostAdd, hostPort).addListener(new ChannelFutureListener() {
             @Override
             public void operationComplete(ChannelFuture future) throws Exception {
