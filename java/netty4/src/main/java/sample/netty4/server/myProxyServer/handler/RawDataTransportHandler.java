@@ -24,4 +24,10 @@ public class RawDataTransportHandler extends BaseInBoundHandler {
         this.dstCtx.flush();
     }
 
+//    @Override
+//    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+//        ctx.channel().close();
+//        dstCtx.channel().close();
+//    }
+
 }

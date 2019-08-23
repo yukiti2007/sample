@@ -7,7 +7,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
@@ -28,15 +27,16 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        doProxy(ctx, (HttpRequest) msg, 2);
+        doProxy(ctx, msg, 2);
     }
 
-    private void doProxy(final ChannelHandlerContext ctxClient, HttpRequest request, final int retryCount) throws SSLException {
+    private void doProxy(final ChannelHandlerContext ctxClient, Object msg, final int retryCount) throws SSLException {
         Integer connectTimout = ctxClient.channel().attr(AttributeKeys.CONNECT_TIMOUT_MS).get();
         if (null == connectTimout) {
             connectTimout = Constants.CONNECT_TIMOUT_MS;
         }
-
+        System.out.println("-------------------request\n" + msg);
+        System.out.println("-------------------");
         SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
         Bootstrap b = new Bootstrap();
         b.group(EventLoopGroups.workerGroup)
@@ -49,9 +49,9 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         Tools.initHandler(ch, sslCtx)
-                                .addLast(new HttpClientCodec())
-                                .addLast(new HttpObjectAggregator(1024 * 1024 * 5));
-                        ch.pipeline().addLast(new ConnectResponseHandler(ctxClient));
+//                                .addLast(new HttpClientCodec())
+//                                .addLast(new HttpObjectAggregator(65535))
+                                .addLast(new ConnectResponseHandler(ctxClient));
                     }
                 });
 
@@ -62,14 +62,14 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
             public void operationComplete(ChannelFuture future) throws Exception {
                 if (!future.isSuccess()) {
                     if (retryCount > 0) {
-                        doProxy(ctxClient, request, retryCount - 1);
+                        doProxy(ctxClient, msg, retryCount - 1);
                     } else {
-                        ReferenceCountUtil.release(request);
+                        ReferenceCountUtil.release(msg);
                         ctxClient.channel().writeAndFlush(HttpResponse.GATEWAY_TIMEOUT).addListener(ChannelFutureListener.CLOSE);
                     }
                     return;
                 }
-                future.channel().writeAndFlush(request);
+                future.channel().writeAndFlush(msg);
             }
         });
     }
@@ -85,20 +85,21 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
 
         @Override
         public void channelRead(ChannelHandlerContext ctxServer, Object msg) throws Exception {
-            Preconditions.checkArgument(msg instanceof FullHttpResponse);
-            FullHttpResponse response = (FullHttpResponse) msg;
+//            Preconditions.checkArgument(msg instanceof FullHttpResponse);
+//            FullHttpResponse response = (FullHttpResponse) msg;
+            System.out.println("+++++++++++++++++++++response\n" + msg);
+            System.out.println("+++++++++++++++++++++");
+            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+            Tools.initHandler(ctxServer.channel(), sslCtx)
+                    .addLast(new RawDataTransportHandler(this.ctxClient));
 
-            ctxClient.channel().writeAndFlush(response).addListener(new ChannelFutureListener() {
+            ctxClient.channel().writeAndFlush(msg).addListener(new ChannelFutureListener() {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     Tools.initHandler(future.channel())
                             .addLast(new RawDataTransportHandler(ctxServer));
                 }
             });
-
-            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-            Tools.initHandler(ctxServer.channel(), sslCtx)
-                    .addLast(new RawDataTransportHandler(this.ctxClient));
         }
     }
 }

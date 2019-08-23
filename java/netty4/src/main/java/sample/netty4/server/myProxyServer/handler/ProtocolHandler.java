@@ -25,6 +25,7 @@ public class ProtocolHandler extends BaseInBoundHandler {
         String httpMethod = line.split(" ")[0];
 
         if (Constants.HTTP_METHOD.contains(httpMethod)) {
+            System.out.println("==================http");
             ctx.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).set(TransportProtocol.HTTP);
             ctx.channel().pipeline()
                     .addLast(new HttpServerCodec())
@@ -35,6 +36,7 @@ public class ProtocolHandler extends BaseInBoundHandler {
             Tools.removeHandler(ctx.channel().pipeline(), this.getClass());
 
         } else if (Constants.HTTPS_METHOD.contains(httpMethod)) {
+            System.out.println("==================https");
             ctx.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).set(TransportProtocol.HTTPS);
             ctx.channel().pipeline()
                     .addLast(new HttpServerCodec())
@@ -56,10 +58,10 @@ public class ProtocolHandler extends BaseInBoundHandler {
         }
 
         // TODO 继续转其他代理
-        Tools.removeHandler(ctx.channel().pipeline(), Transport2HttpHandler.class);
-        Tools.removeHandler(ctx.channel().pipeline(), Transport2HttpsHandler.class);
-        ctx.channel().pipeline()
-                .addLast(new Transport2ProxyHandler());
+//        Tools.removeHandler(ctx.channel().pipeline(), Transport2HttpHandler.class);
+//        Tools.removeHandler(ctx.channel().pipeline(), Transport2HttpsHandler.class);
+//        ctx.channel().pipeline()
+//                .addLast(new Transport2ProxyHandler());
 
         ctx.fireChannelRead(msg);
     }

@@ -47,7 +47,7 @@ public class Transport2ProxyHandler extends BaseInBoundHandler {
                     protected void initChannel(NioSocketChannel ch) throws Exception {
                         Tools.initHandler(ch)
                                 .addLast(new HttpClientCodec())
-                                .addLast(new HttpObjectAggregator(1024 * 1024 * 5));
+                                .addLast(new HttpObjectAggregator(65535));
                         ch.pipeline().addLast(new ConnectResponseHandler(ctxClient));
                     }
                 });

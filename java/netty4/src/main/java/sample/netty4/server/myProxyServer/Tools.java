@@ -18,7 +18,7 @@ public final class Tools {
         for (String header : Constants.DROP_HEADERS) {
             headers.remove(header);
         }
-        headers.add(com.google.common.net.HttpHeaders.CONNECTION, "close");
+//        headers.add(com.google.common.net.HttpHeaders.CONNECTION, "close");
 
         return headers;
     }
