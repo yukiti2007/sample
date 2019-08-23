@@ -28,33 +28,11 @@ public class HttpRequestHeaderHandler extends BaseInBoundHandler {
 
             // host port
             data = request.headers().get(HttpHeaders.HOST);
-            String hostAdd = "";
-            int hostPort = 80;
-            TransportProtocol tp = ctx.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).get();
-            if (TransportProtocol.HTTPS == tp) {
-                hostPort = 443;
-            }
             if (StringUtils.isNotBlank(data)) {
-                if (0 < data.indexOf(":")) {
-                    String[] split = data.split(":");
-                    hostAdd = split[0];
-                    hostPort = Integer.parseInt(split[1]);
-                } else {
-                    hostAdd = data;
-                }
-                ctx.channel().attr(AttributeKeys.HOST_ADD).set(hostAdd);
-                ctx.channel().attr(AttributeKeys.HOST_PORT).set(hostPort);
+                setHost(ctx, data);
             } else {
                 data = request.uri();
-                if (0 < data.indexOf(":")) {
-                    String[] split = data.split(":");
-                    hostAdd = split[0];
-                    hostPort = Integer.parseInt(split[1]);
-                } else {
-                    hostAdd = data;
-                }
-                ctx.channel().attr(AttributeKeys.HOST_ADD).set(hostAdd);
-                ctx.channel().attr(AttributeKeys.HOST_PORT).set(hostPort);
+                setHost(ctx, data);
             }
 
             // username password
@@ -72,5 +50,23 @@ public class HttpRequestHeaderHandler extends BaseInBoundHandler {
             logger.error("HttpRequestHeaderHandler ERR ", e);
             ctx.writeAndFlush(HttpResponse.BAD_GATEWAY).addListener(ChannelFutureListener.CLOSE);
         }
+    }
+
+    private void setHost(ChannelHandlerContext ctx, String host) {
+        String hostAdd = "";
+        int hostPort = 80;
+        TransportProtocol tp = ctx.channel().attr(AttributeKeys.TRANSPORT_PROTOCOL).get();
+        if (TransportProtocol.HTTPS == tp) {
+            hostPort = 443;
+        }
+        if (0 < host.indexOf(":")) {
+            String[] split = host.split(":");
+            hostAdd = split[0];
+            hostPort = Integer.parseInt(split[1]);
+        } else {
+            hostAdd = host;
+        }
+        ctx.channel().attr(AttributeKeys.HOST_ADD).set(hostAdd);
+        ctx.channel().attr(AttributeKeys.HOST_PORT).set(hostPort);
     }
 }

@@ -1,15 +1,8 @@
 package sample.netty4.server.myProxyServer.handler;
 
-import com.google.common.base.Preconditions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.ssl.SslContext;
-import io.netty.handler.ssl.SslContextBuilder;
-import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.util.ReferenceCountUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +30,6 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
         }
         System.out.println("-------------------request\n" + msg);
         System.out.println("-------------------");
-        SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
         Bootstrap b = new Bootstrap();
         b.group(EventLoopGroups.workerGroup)
                 .channel(NioSocketChannel.class)
@@ -48,10 +40,10 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        Tools.initHandler(ch, sslCtx)
+                        Tools.initHandler(ch)
 //                                .addLast(new HttpClientCodec())
 //                                .addLast(new HttpObjectAggregator(65535))
-                                .addLast(new ConnectResponseHandler(ctxClient));
+                                .addLast(new RawDataTransportHandler(ctxClient.channel()));
                     }
                 });
 
@@ -59,47 +51,56 @@ public class Transport2HttpsHandler extends BaseInBoundHandler {
         Integer hostPort = ctxClient.channel().attr(AttributeKeys.HOST_PORT).get();
         b.connect(hostAdd, hostPort).addListener(new ChannelFutureListener() {
             @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
-                if (!future.isSuccess()) {
+            public void operationComplete(ChannelFuture serverFuture) throws Exception {
+                if (!serverFuture.isSuccess()) {
                     if (retryCount > 0) {
                         doProxy(ctxClient, msg, retryCount - 1);
                     } else {
                         ReferenceCountUtil.release(msg);
                         ctxClient.channel().writeAndFlush(HttpResponse.GATEWAY_TIMEOUT).addListener(ChannelFutureListener.CLOSE);
                     }
-                    return;
+                } else {
+
+                    ctxClient.writeAndFlush(HttpResponse.OK).addListener(new ChannelFutureListener() {
+                        @Override
+                        public void operationComplete(ChannelFuture clientFuture) throws Exception {
+                            Tools.initHandler(clientFuture.channel())
+                                    .addLast(new RawDataTransportHandler(serverFuture.channel()));
+                        }
+                    });
+
+//                    serverFuture.channel().writeAndFlush(msg);
                 }
-                future.channel().writeAndFlush(msg);
             }
         });
     }
 
 
-    private class ConnectResponseHandler extends BaseInBoundHandler {
-
-        private ChannelHandlerContext ctxClient;
-
-        public ConnectResponseHandler(ChannelHandlerContext ctxClient) {
-            this.ctxClient = ctxClient;
-        }
-
-        @Override
-        public void channelRead(ChannelHandlerContext ctxServer, Object msg) throws Exception {
-//            Preconditions.checkArgument(msg instanceof FullHttpResponse);
-//            FullHttpResponse response = (FullHttpResponse) msg;
-            System.out.println("+++++++++++++++++++++response\n" + msg);
-            System.out.println("+++++++++++++++++++++");
-            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
-            Tools.initHandler(ctxServer.channel(), sslCtx)
-                    .addLast(new RawDataTransportHandler(this.ctxClient));
-
-            ctxClient.channel().writeAndFlush(msg).addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture future) throws Exception {
-                    Tools.initHandler(future.channel())
-                            .addLast(new RawDataTransportHandler(ctxServer));
-                }
-            });
-        }
-    }
+//    private class ConnectResponseHandler extends BaseInBoundHandler {
+//
+//        private ChannelHandlerContext ctxClient;
+//
+//        public ConnectResponseHandler(ChannelHandlerContext ctxClient) {
+//            this.ctxClient = ctxClient;
+//        }
+//
+//        @Override
+//        public void channelRead(ChannelHandlerContext ctxServer, Object msg) throws Exception {
+////            Preconditions.checkArgument(msg instanceof FullHttpResponse);
+////            FullHttpResponse response = (FullHttpResponse) msg;
+//            System.out.println("+++++++++++++++++++++response\n" + msg);
+//            System.out.println("+++++++++++++++++++++");
+//            SslContext sslCtx = SslContextBuilder.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE).build();
+//            Tools.initHandler(ctxServer.channel(), sslCtx)
+//                    .addLast(new RawDataTransportHandler(this.ctxClient));
+//
+//            ctxClient.channel().writeAndFlush(msg).addListener(new ChannelFutureListener() {
+//                @Override
+//                public void operationComplete(ChannelFuture future) throws Exception {
+//                    Tools.initHandler(future.channel())
+//                            .addLast(new RawDataTransportHandler(ctxServer));
+//                }
+//            });
+//        }
+//    }
 }

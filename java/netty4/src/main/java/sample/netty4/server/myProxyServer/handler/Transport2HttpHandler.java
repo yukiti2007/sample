@@ -88,12 +88,12 @@ public class Transport2HttpHandler extends BaseInBoundHandler {
                 @Override
                 public void operationComplete(ChannelFuture future) throws Exception {
                     Tools.initHandler(future.channel())
-                            .addLast(new RawDataTransportHandler(ctxServer));
+                            .addLast(new RawDataTransportHandler(ctxServer.channel()));
                 }
             });
 
             Tools.initHandler(ctxServer.channel())
-                    .addLast(new RawDataTransportHandler(this.ctxClient));
+                    .addLast(new RawDataTransportHandler(this.ctxClient.channel()));
         }
     }
 }
