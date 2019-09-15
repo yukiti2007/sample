@@ -152,6 +152,9 @@ $RECYCLE.BIN/
 # idea
 .idea/
 *.iml
+*.project
+*.iml
+*.settings
 node_modules/
 
 #maven 
