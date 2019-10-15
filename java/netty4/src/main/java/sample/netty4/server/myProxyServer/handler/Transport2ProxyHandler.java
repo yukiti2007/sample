@@ -54,7 +54,7 @@ public class Transport2ProxyHandler extends BaseInBoundHandler {
 
         String proxyAdd = ctxClient.channel().attr(AttributeKeys.PROXY_ADD).get();
         Integer proxyPort = ctxClient.channel().attr(AttributeKeys.PROXY_PORT).get();
-        proxyAdd = "10.101.20.65";
+        proxyAdd = "127.0.0.1";
         proxyPort = 9008;
         b.connect(proxyAdd, proxyPort).addListener(new ChannelFutureListener() {
             @Override

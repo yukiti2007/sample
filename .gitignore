@@ -156,6 +156,7 @@ $RECYCLE.BIN/
 *.iml
 *.settings
 node_modules/
+dist/
 
 #maven 
 [Tt]arget/
