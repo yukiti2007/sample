@@ -19,7 +19,7 @@ class Hello constructor() {
 }
 
 fun main(args: Array<String>) {
-    val helloWorld = Hello();
+    val helloWorld = Hello()
     helloWorld.sayHello()
     helloWorld.sign = "yukiti"
     helloWorld.sayHello()
