@@ -3,10 +3,9 @@ package sample.base
 class Hello constructor() {
     var obj: String = "World"
     var sign: String = ""
-        set
 
     fun sayHello() {
-        if ("".equals(sign)) {
+        if (!"".equals(sign)) {
             println("Hello $obj by $sign")
         } else {
             println("Hello $obj")
