@@ -13,6 +13,7 @@
         <module>netty4</module>
         <module>okhttp4</module>
         <module>okhttp3</module>
+        <module>spring-scheduled</module>
     </modules>
 
     <dependencies>
