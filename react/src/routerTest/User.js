@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link, Route, Switch,BrowserRouter} from "react-router-dom";
+import {Link, Route, Switch} from "react-router-dom";
 import Department from "./Department";
 
 class User extends React.Component {
