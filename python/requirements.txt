@@ -2,7 +2,7 @@ boto3==1.9.202
 captcha==0.3
 flask==1.1.1
 numpy==1.17.0
-tensorflow==2.0.0-beta1
+tensorflow==2.6.4
 twisted==19.7.0
 opencv-python==4.1.0.25
 kazoo==2.6.1
