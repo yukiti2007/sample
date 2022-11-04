@@ -3,7 +3,7 @@ captcha==0.3
 flask==1.1.1
 numpy==1.17.0
 tensorflow==2.0.0-beta1
-twisted==19.7.0
+twisted==22.10.0
 opencv-python==4.1.0.25
 kazoo==2.6.1
 matplotlib==3.1.1
