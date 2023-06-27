@@ -150,7 +150,7 @@ $RECYCLE.BIN/
 .DS_Store
 
 # idea
-.idea/
+../.idea/
 *.iml
 *.project
 *.iml
